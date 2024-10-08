@@ -1,0 +1,157 @@
+﻿var $loadingBg = $('.loadingBg');
+function PersonInfoCheckID(varCNICNo) {
+    $loadingBg.show();
+
+
+    var myData = { 'varCNICNo': varCNICNo };
+    $.ajax({
+        url: "../handlers/Handler_STEDA_Employees_PersonalInfo_Select.ashx",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        data: myData,// { 'Id': '10000' },
+        responseType: "json",
+        success: function (result) {
+            OnComplete(result, varCNICNo);
+        },
+        error: OnFail
+    });
+    return false;
+}
+
+function OnComplete(result, varCNICNo) {
+
+
+
+    $("#profilePic").attr('src', '../images/team/' + result.PictureUrl);
+
+    $("#txtName").text(result.NameInfull);
+    $("#txtFName").text(result.Fathers_HusbandName);
+    $("#drdRelation").text(result.Relation);
+    $("#txtCaste").text(result.Caste);
+    $("#txtDateOfBirth").text(result.DateOfBirth);
+    $("#drdGender").text(result.Gender);
+    $("#txtPersonalNo").text(result.PersonalNo);
+    $("#txtCellNo").text(result.ContactNo);
+
+    $("#txtEmail").text(result.EmailAddress);
+    $("#txtAddressResidential").text(result.ResidentialAddress);
+    $("#txtPostalAddress").text(result.PostalAddress);
+    $("#drdDomicileDistrict").text(result.DomicileDistrict);
+    $("#drdDomicileTehsil").text(result.DomicileTehsil);
+    $("#txtDepartment").text(result.Department_Organization);
+    $("#drdDesignation").text(result.Designation_Position);
+    $("#drdGrade").text(result.Grade);
+    $("#drdTimeScale").text(result.TimeScale);
+    $("#txtDateOfAppointment").text(result.DateOfAppointment);
+    $("#txtDateOfAppointmentInCurrentGrade").text(result.DateOfAppointmentInCurrentGrade);
+    $("#txtDateOfPosting").text(result.DateOfPosting);
+    $("#drdGovernment_NonGovernment").text(result.Government_NonGovernment);
+    $("#drdAssignment_Portfolio").text(result.Assignment_Portfolio);
+    $("#drdPositionInBoGs").text(result.PositionInBoGs);
+    $("#txtSEMISID").text(result.SEMISID);
+    $("#txtPlaceOfPosting").text(result.PlaceOfPosting);
+    $("#drdSchoolLevel").text(result.SchoolLevel);
+
+    $("#drdAppointedThrough").text(result.AppointedThrough);
+    $("#drdSpecialAssignment").text(result.SpecialAssignment);
+    //$("#drdTeachingSubjects").text(result.TeachingSubjects);
+
+    $("#drdPostingDistrict").text(result.PostingDistrict);
+    $("#drdPostingTehsil").text(result.PostingTehsil);
+
+    $("#drdAcademic").text(result.AcademicQualifications);
+    $("#drdIPDTraining").text(result.IPDTraining);
+    $("#drdProfessional").text(result.ProfessionalQualification);
+    $("#drdProfessionalMaster").text(result.ProfessionalMaster);
+    $("#drdProfessionalMaster").text(result.ProfessionalMaster);
+
+    $("#txtResearchs").text(result.Researches);
+    $("#txtPublications").text(result.Publications);
+    $("#txtSuccessStory").text(result.SuccessStory);
+    if (result.Government_NonGovernment == 'Government') {
+        $('#divTEOWaterMark').removeClass('hide');
+        $('#divTEOWaterMark').addClass('show');
+    } else {
+        $('#divTEOWaterMark').addClass('hide');
+        $('#divTEOWaterMark').removeClass('show');
+    }
+    Employees_Trainings_Select(varCNICNo);
+
+    $loadingBg.hide();
+}
+
+function OnFail() {
+    //$loadingBg.hide();
+    alert('Request Failed');
+}
+
+
+
+function Employee_Portfolio_Select(varCNICNo) {
+    var myData = { 'varCNICNo': varCNICNo };
+    $.ajax({
+        url: "../handlers/Handler_STEDA_Employee_Portfolio_Select.ashx",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        data: myData,// { 'Id': '10000' },
+        responseType: "json",
+        success: function (result) {
+            $(result).each(function (index, members) {
+                var varTemp = 3;
+                $('#checkbox-' + members.Assignment_Portfolio).prop('checked', true);
+                //alert(members.Assignment_Portfolio)
+            });
+
+            ////$loadingBg.hide();
+        },
+
+        error: OnFail
+    });
+    return false;
+}
+
+function Employees_Trainings_Select(varCNICNo) {
+
+    var myData = {
+        'varCNICNo': varCNICNo
+    };
+    varLineNo = 1;
+
+    $.ajax({
+        url: "../handlers/Handler_STEDA_Employees_Trainings_Select.ashx",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        data: myData,// { 'Id': '10000' },
+        responseType: "json",
+        success: function (result) {
+            var tblDistribution = $('#tblEmployeesTrainings tbody');
+            tblDistribution.empty();
+            $(result).each(function (index, vacancies) {
+                if (parseInt(vacancies.strSr) > 0) {
+                    varLineNo = parseInt(vacancies.strSr) + 1;
+                }
+                markup = '<tr>'
+                    + '<td>' + vacancies.strSr + '</td>'
+                    + '<td>' + vacancies.NameOfTraining + '</td>'
+                    + '<td>' + vacancies.ConductingOrganization + '</td>'
+                    + '<td>' + vacancies.VenueOfTraining + '</td>'
+                    + '<td>' + vacancies.DateFrom + '</td>'
+                    + '<td>' + vacancies.DateTo + '</td>'
+                    + '</tr> ';
+                tableBody = $('#tblEmployeesTrainings');
+                tableBody.append(markup);
+            });
+
+
+            $loadingBg.hide();
+        },
+        error: OnFetechTrainingsFail
+    });
+    //return false;
+}
+
+function OnFetechTrainingsFail(result) {
+    alert('Failure');
+    $loadingBg.hide();
+}
+
